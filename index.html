@@ -800,10 +800,43 @@
                 `;
             } else {
                 container.className = 'workout-container';
+                
+                // Generar resumen de ejercicios para el día
+                const exerciseSummary = workout.map(exercise => {
+                    const setInfo = exercise.superset ? 
+                        `${exercise.sets} superseries` : 
+                        `${exercise.sets} × ${exercise.reps}`;
+                    return `${exercise.name} (${setInfo})`;
+                }).join(' • ');
+                
                 container.innerHTML = `
                     <div class="workout-header">
                         <h2>💪 ${dayName}</h2>
                         <div class="week-type">Semana ${week} - ${weekType}</div>
+                        <div style="
+                            background: rgba(255,255,255,0.25);
+                            padding: 20px;
+                            border-radius: 15px;
+                            margin-top: 20px;
+                            backdrop-filter: blur(10px);
+                            border: 2px solid rgba(255,255,255,0.3);
+                        ">
+                            <h3 style="
+                                color: white;
+                                margin-bottom: 15px;
+                                font-size: 1.3rem;
+                                text-align: center;
+                                text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+                            ">🎯 Resumen del Entrenamiento:</h3>
+                            <div style="
+                                font-size: 1rem;
+                                font-weight: 600;
+                                text-align: center;
+                                color: white;
+                                text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+                                line-height: 1.5;
+                            ">${exerciseSummary}</div>
+                        </div>
                     </div>
                     
                     <div class="exercises">
