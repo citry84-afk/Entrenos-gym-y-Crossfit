@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seguimiento de Entrenamientos - Luis & Sergio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .controls {
+            padding: 40px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 3px solid #e9ecef;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 180px;
+        }
+
+        .control-group label {
+            font-weight: 700;
+            color: #2c3e50;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        select, button {
+            padding: 15px 25px;
+            border: 3px solid #ddd;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.2);
+            transform: translateY(-2px);
+        }
+
+        button {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(52, 152, 219, 0.4);
+        }
+
+        .workout-container {
+            padding: 40px;
+        }
+
+        .workout-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(231, 76, 60, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .workout-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="white" opacity="0.1"/><circle cx="80" cy="30" r="1.5" fill="white" opacity="0.1"/><circle cx="40" cy="70" r="1" fill="white" opacity="0.1"/><circle cx="90" cy="80" r="2.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="1.8" fill="white" opacity="0.1"/></svg>');
+        }
+
+        .week-type {
+            display: inline-block;
+            background: rgba(255,255,255,0.25);
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            margin-top: 15px;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        .exercises {
+            display: grid;
+            gap: 25px;
+        }
+
+        .exercise {
+            background: white;
+            border: 3px solid #ecf0f1;
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .exercise::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #3498db, #e74c3c, #f39c12, #27ae60);
+            transition: left 0.5s ease;
+        }
+
+        .exercise:hover::before {
+            left: 0;
+        }
+
+        .exercise:hover {
+            border-color: #3498db;
+            box-shadow: 0 15px 35px rgba(52, 152, 219, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .exercise-name {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .exercise-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .exercise-target {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+        }
+
+        .sets-container {
+            display: grid;
+            gap: 15px;
+        }
+
+        .set {
+            display: grid;
+            grid-template-columns: auto 1fr 1fr auto;
+            gap: 20px;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 12px;
+            border-left: 4px solid #3498db;
+            transition: all 0.3s ease;
+        }
+
+        .set:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .set-number {
+            font-weight: 700;
+            color: #2c3e50;
+            min-width: 80px;
+            font-size: 1.1rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group label {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #2c3e50;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-group select {
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .input-group select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            transform: scale(1.02);
+        }
+
+        .previous-weight {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+            border-color: #27ae60;
+        }
+
+        .suggested-weight {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            border-color: #f39c12;
+        }
+
+        .rest-time {
+            font-size: 0.95rem;
+            color: #e74c3c;
+            font-weight: 700;
+            text-align: center;
+            background: rgba(231, 76, 60, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid rgba(231, 76, 60, 0.2);
+        }
+
+        .progress-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+        }
+
+        .progress-badge {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .badge-previous {
+            background: #27ae60;
+            color: white;
+        }
+
+        .badge-suggested {
+            background: #f39c12;
+            color: white;
+        }
+
+        .save-workout {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .save-workout button {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            padding: 20px 50px;
+            font-size: 1.2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(39, 174, 96, 0.3);
+        }
+
+        .history {
+            margin-top: 40px;
+            padding: 40px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            border-top: 5px solid #3498db;
+        }
+
+        .history h3 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+
+        .history-item {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            border-left: 5px solid #3498db;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .crossfit {
+            background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+            color: white;
+        }
+
+        .crossfit .exercise {
+            background: rgba(255,255,255,0.15);
+            border-color: rgba(255,255,255,0.3);
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+
+        .crossfit .exercise-name {
+            color: white;
+        }
+
+        .crossfit .set {
+            background: rgba(255,255,255,0.15);
+            border-left-color: white;
+        }
+
+        .crossfit .input-group label {
+            color: white;
+        }
+
+        .amrap-timer {
+            text-align: center;
+            margin: 30px 0;
+            padding: 30px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .timer-display {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-family: 'Courier New', monospace;
+        }
+
+        .timer-controls button {
+            margin: 0 10px;
+            background: rgba(255,255,255,0.3);
+            border: 2px solid white;
+            backdrop-filter: blur(10px);
+        }
+
+        .superset-badge {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin-left: 15px;
+            font-weight: 600;
+            box-shadow: 0 3px 10px rgba(231, 76, 60, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .set {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .timer-display {
+                font-size: 3rem;
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💪 Seguimiento de Entrenamientos</h1>
+            <p>Plan de 8 semanas - Luis & Sergio</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="user-select">🏃‍♂️ Atleta:</label>
+                <select id="user-select">
+                    <option value="Luis">Luis</option>
+                    <option value="Sergio">Sergio</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="week-select">📅 Semana:</label>
+                <select id="week-select">
+                    <option value="1">Semana 1</option>
+                    <option value="2">Semana 2</option>
+                    <option value="3">Semana 3</option>
+                    <option value="4">Semana 4</option>
+                    <option value="5">Semana 5</option>
+                    <option value="6">Semana 6</option>
+                    <option value="7">Semana 7</option>
+                    <option value="8">Semana 8</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="day-select">🎯 Día:</label>
+                <select id="day-select">
+                    <option value="1">Día 1 - Pecho + Tríceps</option>
+                    <option value="2">Día 2 - Espalda + Bíceps</option>
+                    <option value="3">Día 3 - Piernas + Hombros</option>
+                    <option value="4">Día 4 - CrossFit</option>
+                </select>
+            </div>
+            <button onclick="loadWorkout()">🚀 Cargar Entrenamiento</button>
+            <button onclick="showHistory()">📊 Ver Historial</button>
+        </div>
+
+        <div id="workout-container" class="workout-container" style="display: none;">
+            <!-- El contenido del entrenamiento se cargará aquí -->
+        </div>
+
+        <div id="history-container" class="history" style="display: none;">
+            <h3>📊 Historial de Entrenamientos</h3>
+            <div id="history-content"></div>
+        </div>
+    </div>
+
+    <script>
+        const workoutProgram = {
+            1: { // Semana 1 - Series normales
+                1: [
+                    { name: "Press banca", sets: 4, reps: "8-10", rest: "90s" },
+                    { name: "Press inclinado mancuernas", sets: 3, reps: "8-10", rest: "90s" },
+                    { name: "Aperturas planas", sets: 3, reps: "12", rest: "60s" },
+                    { name: "Fondos", sets: 3, reps: "8-10", rest: "90s" },
+                    { name: "Press francés barra Z", sets: 3, reps: "10-12", rest: "60s" },
+                    { name: "Extensión cuerda", sets: 3, reps: "12-15", rest: "45s" }
+                ],
+                2: [
+                    { name: "Dominadas", sets: 4, reps: "6-8", rest: "90s" },
+                    { name: "Remo barra", sets: 4, reps: "8-10", rest: "90s" },
+                    { name: "Jalón al pecho", sets: 3, reps: "10-12", rest: "60s" },
+                    { name: "Pullover polea", sets: 3, reps: "12", rest: "60s" },
+                    { name: "Curl barra Z", sets: 3, reps: "10-12", rest: "60s" },
+                    { name: "Curl alterno", sets: 3, reps: "12", rest: "45s" }
+                ],
+                3: [
+                    { name: "Sentadilla", sets: 4, reps: "8-10", rest: "90s" },
+                    { name: "Peso muerto rumano", sets: 4, reps: "8-10", rest: "90s" },
+                    { name: "Prensa", sets: 3, reps: "12", rest: "60s" },
+                    { name: "Zancadas caminando", sets: 3, reps: "12 pasos", rest: "60s" },
+                    { name: "Press militar", sets: 3, reps: "8-10", rest: "90s" },
+                    { name: "Elevaciones laterales", sets: 3, reps: "12", rest: "45s" }
+                ],
+                4: {
+                    type: "crossfit",
+                    title: "AMRAP 25'",
+                    exercises: [
+                        { name: "KB swings", reps: "10" },
+                        { name: "Push ups", reps: "10" },
+                        { name: "Box jumps", reps: "10" },
+                        { name: "Pull ups", reps: "10" },
+                        { name: "Correr/remo", reps: "200m" }
+                    ]
+                }
+            },
+            2: { // Semana 2 - Superseries
+                1: [
+                    { name: "SS1: Press banca + aperturas", sets: 4, reps: "8-10 + 12", rest: "60s", superset: true },
+                    { name: "SS2: Press inclinado + fondos", sets: 3, reps: "8-10 + 8-10", rest: "60s", superset: true },
+                    { name: "SS3: Press francés + extensión cuerda", sets: 3, reps: "10-12 + 12-15", rest: "60s", superset: true }
+                ],
+                2: [
+                    { name: "SS1: Dominadas + curl barra", sets: 4, reps: "6-8 + 10-12", rest: "60s", superset: true },
+                    { name: "SS2: Remo barra + curl alterno", sets: 3, reps: "8-10 + 12", rest: "60s", superset: true },
+                    { name: "SS3: Jalón pecho + pullover", sets: 3, reps: "10-12 + 12", rest: "60s", superset: true }
+                ],
+                3: [
+                    { name: "SS1: Sentadilla + press militar", sets: 4, reps: "8-10 + 8-10", rest: "60s", superset: true },
+                    { name: "SS2: Peso muerto rumano + elevaciones laterales", sets: 3, reps: "8-10 + 12", rest: "60s", superset: true },
+                    { name: "SS3: Prensa + facepulls", sets: 3, reps: "12 + 15", rest: "60s", superset: true }
+                ],
+                4: {
+                    type: "crossfit",
+                    title: "For Time (chipper)",
+                    exercises: [
+                        { name: "Correr", reps: "400m" },
+                        { name: "KB swings", reps: "30" },
+                        { name: "Push ups", reps: "20" },
+                        { name: "Pull ups", reps: "15" },
+                        { name: "Sit ups", reps: "30" },
+                        { name: "Correr", reps: "400m" },
+                        { name: "Burpees", reps: "20" }
+                    ]
+                }
+            }
+        };
+
+        // Repetir patrón para semanas 3-8
+        workoutProgram[3] = JSON.parse(JSON.stringify(workoutProgram[1]));
+        workoutProgram[4] = JSON.parse(JSON.stringify(workoutProgram[2]));
+        workoutProgram[5] = JSON.parse(JSON.stringify(workoutProgram[1]));
+        workoutProgram[6] = JSON.parse(JSON.stringify(workoutProgram[2]));
+        workoutProgram[7] = JSON.parse(JSON.stringify(workoutProgram[1]));
+        workoutProgram[8] = JSON.parse(JSON.stringify(workoutProgram[2]));
+
+        let currentTimer = null;
+        let timerTime = 0;
+        let timerRunning = false;
+
+        function generateWeightOptions() {
+            const options = ['<option value="">Seleccionar...</option>'];
+            
+            // Pesos corporales y ligeros
+            for (let i = 0; i <= 20; i += 0.5) {
+                options.push(`<option value="${i}">${i} kg</option>`);
+            }
+            
+            // Pesos medios
+            for (let i = 22.5; i <= 100; i += 2.5) {
+                options.push(`<option value="${i}">${i} kg</option>`);
+            }
+            
+            // Pesos pesados
+            for (let i = 105; i <= 200; i += 5) {
+                options.push(`<option value="${i}">${i} kg</option>`);
+            }
+            
+            return options.join('');
+        }
+
+        function generateRepsOptions() {
+            const options = ['<option value="">Seleccionar...</option>'];
+            for (let i = 1; i <= 30; i++) {
+                options.push(`<option value="${i}">${i} reps</option>`);
+            }
+            return options.join('');
+        }
+
+        function getPreviousWeight(user, exerciseName, setNumber) {
+            const savedWorkouts = JSON.parse(localStorage.getItem('workouts') || '[]');
+            
+            // Buscar entrenamientos anteriores del mismo usuario y ejercicio
+            const previousWorkouts = savedWorkouts.filter(workout => 
+                workout.user === user && 
+                workout.exercises.some(ex => ex.name === exerciseName)
+            ).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            if (previousWorkouts.length > 0) {
+                const lastWorkout = previousWorkouts[0];
+                const exercise = lastWorkout.exercises.find(ex => ex.name === exerciseName);
+                if (exercise && exercise.sets && exercise.sets[setNumber - 1]) {
+                    return exercise.sets[setNumber - 1].weight;
+                }
+            }
+            
+            return null;
+        }
+
+        function getSuggestedWeight(previousWeight) {
+            if (!previousWeight) return null;
+            
+            // Sugerir incremento del 2.5-5% o 1-2.5kg mínimo
+            const increment = Math.max(1, Math.round(previousWeight * 0.025 * 2) / 2);
+            return previousWeight + increment;
+        }
+
+        function loadWorkout() {
+            const user = document.getElementById('user-select').value;
+            const week = parseInt(document.getElementById('week-select').value);
+            const day = parseInt(document.getElementById('day-select').value);
+            
+            const workout = workoutProgram[week][day];
+            const container = document.getElementById('workout-container');
+            
+            container.style.display = 'block';
+            document.getElementById('history-container').style.display = 'none';
+            
+            const weekType = (week % 2 === 1) ? 'Series Normales' : 'Superseries';
+            const dayName = document.getElementById('day-select').options[day-1].text;
+            
+            if (workout.type === 'crossfit') {
+                container.className = 'workout-container crossfit';
+                
+                // Generar el WOD completo
+                const wodDisplay = workout.exercises.map(exercise => 
+                    `${exercise.reps} ${exercise.name}`
+                ).join(' • ');
+                
+                container.innerHTML = `
+                    <div class="workout-header">
+                        <h2>🔥 ${dayName}</h2>
+                        <div class="week-type">Semana ${week} - ${workout.title}</div>
+                        <div style="
+                            background: rgba(255,255,255,0.25);
+                            padding: 20px;
+                            border-radius: 15px;
+                            margin-top: 20px;
+                            backdrop-filter: blur(10px);
+                            border: 2px solid rgba(255,255,255,0.3);
+                        ">
+                            <h3 style="
+                                color: white;
+                                margin-bottom: 15px;
+                                font-size: 1.3rem;
+                                text-align: center;
+                                text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+                            ">🏋️‍♂️ WOD Completo:</h3>
+                            <div style="
+                                font-size: 1.1rem;
+                                font-weight: 600;
+                                text-align: center;
+                                color: white;
+                                text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+                                line-height: 1.5;
+                            ">${wodDisplay}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="amrap-timer">
+                        <div class="timer-display" id="timer-display">25:00</div>
+                        <div class="timer-controls">
+                            <button onclick="startTimer(25 * 60)">⏱️ Iniciar AMRAP 25'</button>
+                            <button onclick="startTimer(0)">🚀 Iniciar For Time</button>
+                            <button onclick="stopTimer()">⏸️ Detener</button>
+                            <button onclick="resetTimer()">🔄 Reiniciar</button>
+                        </div>
+                    </div>
+                    
+                    <div class="exercises">
+                        ${workout.exercises.map((exercise, idx) => `
+                            <div class="exercise">
+                                <div class="exercise-name">
+                                    <div class="exercise-icon">${idx + 1}</div>
+                                    ${exercise.name}
+                                </div>
+                                <div class="exercise-target">
+                                    🎯 Target: ${exercise.reps}
+                                </div>
+                                <div class="sets-container">
+                                    <div class="set">
+                                        <div class="set-number">Resultado</div>
+                                        <div class="input-group">
+                                            <label>⏱️ Rounds/Tiempo</label>
+                                            <input type="text" id="cf_${idx}_result" placeholder="Ej: 8 rounds o 15:30" style="padding: 12px; border: 2px solid #ddd; border-radius: 8px; text-align: center; font-weight: 600;">
+                                        </div>
+                                        <div class="input-group">
+                                            <label>📝 Notas</label>
+                                            <input type="text" id="cf_${idx}_notes" placeholder="Modificaciones, peso usado..." style="padding: 12px; border: 2px solid #ddd; border-radius: 8px; text-align: center;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="save-workout">
+                        <button onclick="saveWorkout('${user}', ${week}, ${day})">💾 Guardar Entrenamiento</button>
+                    </div>
+                `;
+            } else {
+                container.className = 'workout-container';
+                container.innerHTML = `
+                    <div class="workout-header">
+                        <h2>💪 ${dayName}</h2>
+                        <div class="week-type">Semana ${week} - ${weekType}</div>
+                    </div>
+                    
+                    <div class="exercises">
+                        ${workout.map((exercise, exerciseIdx) => {
+                            return `
+                                <div class="exercise">
+                                    <div class="exercise-name">
+                                        <div class="exercise-icon">${exerciseIdx + 1}</div>
+                                        ${exercise.name}
+                                        ${exercise.superset ? '<span class="superset-badge">SUPERSET</span>' : ''}
+                                    </div>
+                                    <div class="exercise-target">
+                                        🎯 Target: ${exercise.sets} series × ${exercise.reps} reps
+                                    </div>
+                                    <div class="sets-container">
+                                        ${Array.from({length: exercise.sets}, (_, setIdx) => {
+                                            const previousWeight = getPreviousWeight(user, exercise.name, setIdx + 1);
+                                            const suggestedWeight = getSuggestedWeight(previousWeight);
+                                            
+                                            let weightOptions = generateWeightOptions();
+                                            
+                                            // Marcar peso anterior y sugerido
+                                            if (previousWeight) {
+                                                weightOptions = weightOptions.replace(
+                                                    `<option value="${previousWeight}">`,
+                                                    `<option value="${previousWeight}" class="previous-weight" style="background: #27ae60; color: white;">🔄 ${previousWeight} kg (anterior)`
+                                                );
+                                            }
+                                            
+                                            if (suggestedWeight && suggestedWeight !== previousWeight) {
+                                                weightOptions = weightOptions.replace(
+                                                    `<option value="${suggestedWeight}">`,
+                                                    `<option value="${suggestedWeight}" class="suggested-weight" style="background: #f39c12; color: white;">⬆️ ${suggestedWeight} kg (sugerido)`
+                                                );
+                                            }
+                                            
+                                            return `
+                                                <div class="set">
+                                                    <div class="set-number">Serie ${setIdx + 1}</div>
+                                                    <div class="input-group">
+                                                        <label>⚖️ Peso (kg)</label>
+                                                        <select id="ex_${exerciseIdx}_set_${setIdx}_weight">
+                                                            ${weightOptions}
+                                                        </select>
+                                                        ${previousWeight || suggestedWeight ? `
+                                                            <div class="progress-indicator">
+                                                                ${previousWeight ? `<span class="progress-badge badge-previous">Anterior: ${previousWeight}kg</span>` : ''}
+                                                                ${suggestedWeight ? `<span class="progress-badge badge-suggested">Sugerido: ${suggestedWeight}kg</span>` : ''}
+                                                            </div>
+                                                        ` : ''}
+                                                    </div>
+                                                    <div class="input-group">
+                                                        <label>🔥 Reps</label>
+                                                        <select id="ex_${exerciseIdx}_set_${setIdx}_reps">
+                                                            ${generateRepsOptions()}
+                                                        </select>
+                                                    </div>
+                                                    <div class="rest-time">
+                                                        ⏱️ Descanso: ${exercise.rest}
+                                                    </div>
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    
+                    <div class="save-workout">
+                        <button onclick="saveWorkout('${user}', ${week}, ${day})">💾 Guardar Entrenamiento</button>
+                    </div>
+                `;
+            }
+        }
+
+        function startTimer(seconds) {
+            clearInterval(currentTimer);
+            timerTime = seconds;
+            timerRunning = true;
+            
+            currentTimer = setInterval(() => {
+                if (timerTime > 0) {
+                    timerTime--;
+                } else if (seconds > 0) {
+                    // AMRAP - seguir contando hacia arriba después de 25 min
+                    timerTime++;
+                }
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(currentTimer);
+            timerRunning = false;
+        }
+
+        function resetTimer() {
+            clearInterval(currentTimer);
+            timerTime = 0;
+            timerRunning = false;
+            document.getElementById('timer-display').textContent = '25:00';
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(Math.abs(timerTime) / 60);
+            const seconds = Math.abs(timerTime) % 60;
+            const sign = timerTime < 0 ? '+' : '';
+            document.getElementById('timer-display').textContent = 
+                `${sign}${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function saveWorkout(user, week, day) {
+            const workoutData = {
+                user,
+                week,
+                day,
+                date: new Date().toISOString().split('T')[0],
+                timestamp: new Date().toISOString(),
+                exercises: []
+            };
+
+            const workout = workoutProgram[week][day];
+            
+            if (workout.type === 'crossfit') {
+                workout.exercises.forEach((exercise, idx) => {
+                    const result = document.getElementById(`cf_${idx}_result`).value;
+                    const notes = document.getElementById(`cf_${idx}_notes`).value;
+                    
+                    workoutData.exercises.push({
+                        name: exercise.name,
+                        result,
+                        notes
+                    });
+                });
+            } else {
+                workout.forEach((exercise, exerciseIdx) => {
+                    const sets = [];
+                    for (let setIdx = 0; setIdx < exercise.sets; setIdx++) {
+                        const weight = document.getElementById(`ex_${exerciseIdx}_set_${setIdx}_weight`).value;
+                        const reps = document.getElementById(`ex_${exerciseIdx}_set_${setIdx}_reps`).value;
+                        
+                        if (weight || reps) {
+                            sets.push({
+                                set: setIdx + 1,
+                                weight: parseFloat(weight) || 0,
+                                reps: parseInt(reps) || 0
+                            });
+                        }
+                    }
+                    
+                    if (sets.length > 0) {
+                        workoutData.exercises.push({
+                            name: exercise.name,
+                            sets
+                        });
+                    }
+                });
+            }
+
+            // Guardar en localStorage
+            const savedWorkouts = JSON.parse(localStorage.getItem('workouts') || '[]');
+            savedWorkouts.push(workoutData);
+            localStorage.setItem('workouts', JSON.stringify(savedWorkouts));
+            
+            // Mostrar animación de éxito
+            const button = event.target;
+            button.innerHTML = '✅ ¡Guardado!';
+            button.style.background = 'linear-gradient(135deg, #27ae60, #229954)';
+            
+            setTimeout(() => {
+                button.innerHTML = '💾 Guardar Entrenamiento';
+                button.style.background = 'linear-gradient(135deg, #27ae60 0%, #229954 100%)';
+            }, 2000);
+        }
+
+        function showHistory() {
+            const container = document.getElementById('history-container');
+            const content = document.getElementById('history-content');
+            const savedWorkouts = JSON.parse(localStorage.getItem('workouts') || '[]');
+            
+            document.getElementById('workout-container').style.display = 'none';
+            container.style.display = 'block';
+            
+            if (savedWorkouts.length === 0) {
+                content.innerHTML = '<p style="text-align: center; color: #7f8c8d; font-size: 1.2rem;">📝 No hay entrenamientos guardados aún.</p>';
+                return;
+            }
+            
+            const workoutsByUser = savedWorkouts.reduce((acc, workout) => {
+                if (!acc[workout.user]) acc[workout.user] = [];
+                acc[workout.user].push(workout);
+                return acc;
+            }, {});
+            
+            content.innerHTML = Object.entries(workoutsByUser).map(([user, workouts]) => `
+                <h4 style="color: #2c3e50; margin: 30px 0 15px 0; font-size: 1.5rem; font-weight: 800;">🏃‍♂️ Entrenamientos de ${user}</h4>
+                ${workouts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).map(workout => {
+                    const dayName = document.getElementById('day-select').options[workout.day-1].text;
+                    return `
+                        <div class="history-item">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <strong style="font-size: 1.2rem; color: #2c3e50;">${dayName} - Semana ${workout.week}</strong>
+                                <span style="color: #7f8c8d; font-size: 0.9rem; font-weight: 600;">📅 ${workout.date}</span>
+                            </div>
+                            ${workout.exercises.map(exercise => {
+                                if (exercise.sets) {
+                                    return `
+                                        <div style="margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #3498db;">
+                                            <strong style="color: #2c3e50;">💪 ${exercise.name}:</strong><br>
+                                            <span style="color: #7f8c8d; margin-left: 20px;">
+                                                ${exercise.sets.map(set => `${set.weight}kg × ${set.reps}`).join(' • ')}
+                                            </span>
+                                        </div>
+                                    `;
+                                } else {
+                                    return `
+                                        <div style="margin: 10px 0; padding: 10px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #f39c12;">
+                                            <strong style="color: #2c3e50;">🔥 ${exercise.name}:</strong> 
+                                            <span style="color: #856404; font-weight: 600;">${exercise.result}</span>
+                                            ${exercise.notes ? `<br><span style="color: #6c757d; font-style: italic; margin-left: 20px;">📝 ${exercise.notes}</span>` : ''}
+                                        </div>
+                                    `;
+                                }
+                            }).join('')}
+                        </div>
+                    `;
+                }).join('')}
+            `).join('');
+        }
+
+        // Cargar primer entrenamiento al iniciar
+        window.onload = function() {
+            // Animación de entrada
+            setTimeout(() => {
+                loadWorkout();
+            }, 500);
+        };
+    </script>
+</body>
+</html>
